@@ -38,11 +38,12 @@ class Agent():
     def __init__(self, world, kind, same_pref): #!same_pref is a param but the rest aren't!
         self.world = world
         self.kind = kind
-        self.same_pref = same_pref
+        self.same_pref = same_pref #needs to be updated
         self.location = None
 
     def who_am_i():
-        #handles agent's kind 
+        #handles agent's kind and same_pref
+
 
     def move(self):
         #handle each agent's turn in the model iteration
@@ -112,15 +113,15 @@ class World():
         locations = [(i,j) for i in range(world_size[0]) for j in range(world_size[1])]
         return {l:None for l in locations}
 
-    my_agent = 'a'
+
     def build_agents(self, num_agents):#, same_pref):
         #generate a list of Agents that can be iterated over
 
         def _kind_picker(i):
             if i < round(num_agents * params['proportion_r']):
-                return my_agent = 'red'
+                return 'red'
             else:
-                return my_agent =  'blue'
+                return 'blue'
 
         def _pref_picker(i):
             if i < round(num_agents * params['proportion_r']):
@@ -131,7 +132,7 @@ class World():
         agents = [Agent(self, _kind_picker(i), _pref_picker(i)) for i in range(num_agents)]
         random.shuffle(agents)
         return agents
-    print('I am {}'.format(my_agent))
+        #print('I am {}'.format(my_agent))
 
     def init_world(self):
         #a method for all the steps necessary to create the starting point of the model
