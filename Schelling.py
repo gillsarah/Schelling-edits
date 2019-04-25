@@ -20,19 +20,29 @@ Homework 3: Modify the Agent Based Model from class.
 
 
 #note: update out_path to point to somewhere on your computer
+'''
+reminders:
+cut same_pref
+def build_agents: I may need to do differently -> report needs to know kind
+'''
 params = {'world_size':(20,20),
           'num_agents':380,
           'same_pref' :0.4,
+          'same_pref_r': 0.4,
+          'same_pref_b': 0.4,
           'max_iter'  :100,
           'proportion_r': 0.5,
           'out_path':r'~\Desktop\Programing\HW_3\output.csv'} #not sure where it's going, but not there!
 
 class Agent():
-    def __init__(self, world, kind, same_pref):
+    def __init__(self, world, kind, same_pref): #!same_pref is a param but the rest aren't!
         self.world = world
         self.kind = kind
         self.same_pref = same_pref
         self.location = None
+
+    def who_am_i():
+        #handles agent's kind 
 
     def move(self):
         #handle each agent's turn in the model iteration
@@ -93,7 +103,7 @@ class World():
         self.reports = {}
 
         self.grid     = self.build_grid(  params['world_size'])
-        self.agents   = self.build_agents(params['num_agents'], params['same_pref'])
+        self.agents   = self.build_agents(params['num_agents']) #, params['same_pref'])
 
         self.init_world()
 
@@ -102,24 +112,26 @@ class World():
         locations = [(i,j) for i in range(world_size[0]) for j in range(world_size[1])]
         return {l:None for l in locations}
 
-    def build_agents(self, num_agents, same_pref):
+    my_agent = 'a'
+    def build_agents(self, num_agents):#, same_pref):
         #generate a list of Agents that can be iterated over
 
         def _kind_picker(i):
             if i < round(num_agents * params['proportion_r']):
-                return 'red'
+                return my_agent = 'red'
             else:
-                return 'blue'
+                return my_agent =  'blue'
 
-        def _a_test(i):
+        def _pref_picker(i):
             if i < round(num_agents * params['proportion_r']):
-                return 0.1
+                return params['same_pref_r']
             else:
-                return 0.2
+                return params['same_pref_b']
 
-        agents = [Agent(self, _kind_picker(i), _a_test(i)) for i in range(num_agents)]
+        agents = [Agent(self, _kind_picker(i), _pref_picker(i)) for i in range(num_agents)]
         random.shuffle(agents)
         return agents
+    print('I am {}'.format(my_agent))
 
     def init_world(self):
         #a method for all the steps necessary to create the starting point of the model
@@ -253,3 +265,4 @@ class World():
 
 world = World(params)
 world.run()
+#world.build_agents(10)
