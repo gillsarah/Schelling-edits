@@ -33,17 +33,28 @@ params = {'world_size':(20,20),
           'max_iter'  :100,
           'proportion_r': 0.5,
           'out_path':r'~\Desktop\Programing\HW_3\output.csv'} #not sure where it's going, but not there!
-
+agents = []
 class Agent():
     def __init__(self, world, kind, same_pref): #!same_pref is a param but the rest aren't!
         self.world = world
         self.kind = kind
         self.same_pref = same_pref #needs to be updated
         self.location = None
+        self.agents = agents #new
 
-    def who_am_i():
+    def who_am_i(self):
         #handles agent's kind and same_pref
+        if i < round(num_agents * params['proportion_r']):
+            self.kind = 'red'
+            self.same_pref = params['same_pref_r']
+        else:
+            self.kind =  'blue'
+            self.same_pref = params['same_pref_b']
 
+        agents = [(self, my_kind, my_pref) for i in range(num_agents)]
+        random.shuffle(agents)
+        return agents
+    #print(self.kind)
 
     def move(self):
         #handle each agent's turn in the model iteration
@@ -92,19 +103,38 @@ class Agent():
 
         perc_like_me = num_like_me / len(neighbor_kinds)
 
+        #if perc_like_me < self.same_pref:
+
+        #    return False
+        #else:
+        #    return True
+
+        #intermediat output to check on stuff:
         if perc_like_me < self.same_pref:
+            if not loc: #debug
+                print('Me:',self.kind) #debug
+                print('My neighbors:', neighbor_kinds) #debug
+                print('{} < {}'.format(perc_like_me, self.same_pref)) #debug
+                print('Not happy.') #debug
             return False
         else:
+            if not loc: #debug
+                print('Me:',self.kind) #debug
+                print('My neighbors:', neighbor_kinds) #debug
+                print('{} >= {}'.format(perc_like_me, self.same_pref)) #debug
+                print('Happy!') #debug
             return True
 
+
 class World():
-    def __init__(self, params):
+    def __init__(self, params, agents): #i added agents here, not working!
         assert(params['world_size'][0] * params['world_size'][1] > params['num_agents']), 'Grid too small for number of agents.'
         self.params = params
         self.reports = {}
 
         self.grid     = self.build_grid(  params['world_size'])
-        self.agents   = self.build_agents(params['num_agents']) #, params['same_pref'])
+        self.agents   = agents
+        #self.build_agents(params['num_agents']) #, params['same_pref'])
 
         self.init_world()
 
@@ -114,24 +144,24 @@ class World():
         return {l:None for l in locations}
 
 
-    def build_agents(self, num_agents):#, same_pref):
+    #def build_agents(self, num_agents):#, same_pref):
         #generate a list of Agents that can be iterated over
 
-        def _kind_picker(i):
-            if i < round(num_agents * params['proportion_r']):
-                return 'red'
-            else:
-                return 'blue'
+    #    def _kind_picker(i):
+    #        if i < round(num_agents * params['proportion_r']):
+    #            return 'red'
+    #        else:
+    #            return 'blue'
 
-        def _pref_picker(i):
-            if i < round(num_agents * params['proportion_r']):
-                return params['same_pref_r']
-            else:
-                return params['same_pref_b']
+    #    def _pref_picker(i):
+    #        if i < round(num_agents * params['proportion_r']):
+    #            return params['same_pref_r']
+    #        else:
+    #            return params['same_pref_b']
 
-        agents = [Agent(self, _kind_picker(i), _pref_picker(i)) for i in range(num_agents)]
-        random.shuffle(agents)
-        return agents
+    #    agents = [Agent(self, _kind_picker(i), _pref_picker(i)) for i in range(num_agents)]
+    #    random.shuffle(agents)
+    #    return agents
         #print('I am {}'.format(my_agent))
 
     def init_world(self):
@@ -267,3 +297,10 @@ class World():
 world = World(params)
 world.run()
 #world.build_agents(10)
+#agent = Agents(world, kind, same_pref)
+#agent.who_am_i()
+#testing
+a = 0 #arbitrary choice
+print('Start:', world.agents[a].location, '\n') #print their location '\n' is a "hard return"
+world.agents[a].move()
+print('\nEnd:', world.agents[a].location)
