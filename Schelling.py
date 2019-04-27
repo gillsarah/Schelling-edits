@@ -5,6 +5,8 @@ from numpy import random, mean
 #well I broke it and I don't know how! It thinks they're happy, but I didn't
 #touch am_i_happy or build_agents
 #fixed it! Yay!
+#just have to update report so that does r and b sep :(
+#out path not working correctly 
 
 params = {'world_size':(20,20),
           'num_agents':380,
@@ -14,7 +16,9 @@ params = {'world_size':(20,20),
           'proportion_r': 0.6,
           'max_iter'  :20, #100
           'look_before_move': True, #toggle this T/F for Question 2
-          'out_path':r'~\Desktop\Programing\HW_3\output.csv'} #not sure where it's going, but not there!
+          'print_to_screen': False,  #toggle this T/F for Question 1
+          'to_file': False,          #toggle this T/F for Question 1
+          'out_path':r'c: \\Users\Sarah\Desktop\Programing\HW_3\output.csv'} #not sure where it's going, but not there!
 
 class Agent():
     def __init__(self, world, kind, same_pref):
@@ -259,21 +263,22 @@ class World():
         self.reports['log_of_stay']  = log_of_stay
         self.reports['log_of_rand']  = log_of_rand
 
-        self.report()
+        self.report(params)
 
-    def report(self, to_file=True):
+    def report(self, params):
         #report final results after run ends
         reports = self.reports
 
-        print('\nAll results begin at time=0 and go in order to the end.\n')
-        print('The average number of neighbors an agent has not like them:', reports['integration'])
-        print('The number of happy agents:', reports['log_of_happy'])
-        print('The number of moves per turn who checked if they would be happy:', reports['log_of_moved'])
-        print('The number of moves per turn who did not check if they would be happy:', reports['log_of_rand'])
-        print('The number of agents who failed to find a new home:', reports['log_of_stay'])
-        print('check:',reports['log_of_rand']) #debug
+        if params['print_to_screen']:
+            print('\nAll results begin at time=0 and go in order to the end.\n')
+            print('The average number of neighbors an agent has not like them:', reports['integration'])
+            print('The number of happy agents:', reports['log_of_happy'])
+            print('The number of moves per turn who checked if they would be happy:', reports['log_of_moved'])
+            print('The number of moves per turn who did not check if they would be happy:', reports['log_of_rand'])
+            print('The number of agents who failed to find a new home:', reports['log_of_stay'])
+            print('check:',reports['log_of_rand']) #debug
 
-        if to_file:
+        if params['to_file']:
             out_path = self.params['out_path']
             with open(out_path, 'w') as f:
                 headers = 'turn,integration,num_happy,num_moved,num_stayed\n'
