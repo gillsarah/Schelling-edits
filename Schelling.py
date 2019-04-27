@@ -1,6 +1,6 @@
 from numpy import random, mean
 
-#note: update out_path to point to somewhere on your computer
+#note: Project completed with use of lecture notes and notes from TA discussion section
 
 #well I broke it and I don't know how! It thinks they're happy, but I didn't
 #touch am_i_happy or build_agents
@@ -15,10 +15,11 @@ params = {'world_size':(20,20),
           'same_pref_b': 0.3,
           'proportion_r': 0.6,
           'max_iter'  :20, #100
-          'look_before_move': True, #toggle this T/F for Question 2
-          'print_to_screen': False,  #toggle this T/F for Question 1
+          'look_before_move': False, #toggle this T/F for Question 2
+          'print_to_screen': True,  #toggle this T/F for Question 1
           'to_file': False,          #toggle this T/F for Question 1
-          'out_path':r'c: \\Users\Sarah\Desktop\Programing\HW_3\output.csv'} #not sure where it's going, but not there!
+          'out_path':r'c:\\Users\\Sarah\\Desktop\\Programing\\HW_3\\output.csv'} #not sure where it's going, but not there!
+              #from lecture: out_path = r'c:\\users\\jeff\\desktop\\abm_results.csv'
 
 class Agent():
     def __init__(self, world, kind, same_pref):
@@ -44,8 +45,17 @@ class Agent():
                 self.world.grid[self.location] = None #move out of current patch
                 self.location = patch                 #assign new patch to myself
                 self.world.grid[patch] = self         #update the grid
-                return 3
-
+                if self.kind == 'red':
+                    return 4
+                else:
+                    return 5
+            '''
+            for i in range(params['num_agents']):
+                if move.agents[i].kind == 'red':
+                    return 4
+                else:
+                    return 5
+            '''
         elif not happy and params['look_before_move']:
             vacancies = self.world.find_vacant(return_all=True)
             for patch in vacancies:
@@ -62,7 +72,10 @@ class Agent():
             if i_moved is False:
                 return 2
         elif happy: #needed to dubug! previously just else:
-            return 0
+            if self.kind == 'red':
+                return 0 #'red happy'
+            else:
+                return 6 #'blue happy'
 
     def am_i_happy(self, loc=False, neighbor_check=False):
         #this should return a boolean for whether or not an agent is happy at a location
@@ -102,7 +115,8 @@ class World():
         self.grid     = self.build_grid(params['world_size'])
         #self.agents   = self.agent_assign_helper(params['num_agents'])
         self.agents   = self.build_agents(params['num_agents'], params['same_pref_r'], params['same_pref_b'])
-        
+        #self.red_agents = ?
+
         self.init_world()
 
     
@@ -224,9 +238,25 @@ class World():
         log_of_moved = []
         log_of_stay  = []
         log_of_rand  = []
+        log_of_rand_r = []
+        log_of_rand_b = []
+        log_of_happy_r = []
+        log_of_happy_b = []
 
+        '''
+        red_agents = []
+        blue_agents = []
+        for a in self.agents:
+            if world.agents[a].kind == 'red':
+                red_agents.append(a)
+            else:
+                blue_agents.append(a)
+
+                #print(world.agents[i].kind)
+        '''
         self.report_integration()
         log_of_happy.append(sum([a.am_i_happy() for a in self.agents])) #starting happiness
+        #log_of_happy_r.append(sum([a.am_i_happy() for a in self.red_agents]))
         log_of_moved.append(0) #no one moved at startup
         log_of_stay.append(0) #no one stayed at startup
 
@@ -236,16 +266,24 @@ class World():
             move_results = [agent.move(params) for agent in self.agents]
             self.report_integration()
 
-            num_happy_at_start = sum([r==0 for r in move_results])
+            num_happy_at_start =sum([r==0 for r in move_results]) + sum([r==6 for r in move_results])
+            num_happy_at_start_r = sum([r==0 for r in move_results])
+            num_happy_at_start_b = sum([r==6 for r in move_results])
             num_moved          = sum([r==1 for r in move_results])
             num_stayed_unhappy = sum([r==2 for r in move_results])
             num_moved_random   = sum([r==3 for r in move_results]) #addes this!!!!!!!!!!
+            num_moved_random_r = sum([r==4 for r in move_results]) #not working
+            num_moved_random_b = sum([r==5 for r in move_results]) #not working
 
             log_of_happy.append(num_happy_at_start)
             log_of_moved.append(num_moved)
             log_of_stay .append(num_stayed_unhappy)
             #log_of_moved.append(num_moved_random) #this way does not work, appends a 0 when shouldn't
             log_of_rand.append(num_moved_random) #debug
+            log_of_rand_r.append(num_moved_random_r)
+            log_of_rand_b.append(num_moved_random_b)
+            log_of_happy_r.append(num_happy_at_start_r)
+            log_of_happy_r.append(num_happy_at_start_b)
 
             #if not params[look_before_move]:
             #    print("we all just move, that's what we do")
@@ -259,9 +297,12 @@ class World():
                 break
 
         self.reports['log_of_happy'] = log_of_happy
+        self.reports['log_of_happy_r'] = log_of_happy_r
         self.reports['log_of_moved'] = log_of_moved
         self.reports['log_of_stay']  = log_of_stay
         self.reports['log_of_rand']  = log_of_rand
+        self.reports['log_of_rand_r'] = log_of_rand_r
+        self.reports['log_of_rand_b'] = log_of_rand_b
 
         self.report(params)
 
@@ -273,8 +314,12 @@ class World():
             print('\nAll results begin at time=0 and go in order to the end.\n')
             print('The average number of neighbors an agent has not like them:', reports['integration'])
             print('The number of happy agents:', reports['log_of_happy'])
+            print('The number of happy red agents:', reports['log_of_happy_r'])
+            print('The number of happy blue agents:', reports['log_of_happy_b'])
             print('The number of moves per turn who checked if they would be happy:', reports['log_of_moved'])
-            print('The number of moves per turn who did not check if they would be happy:', reports['log_of_rand'])
+            print('The number of red agent moves per turn who did not check if they would be happy:', reports['log_of_rand_r'])
+            print('The number of blue agent moves per turn who did not check if they would be happy:', reports['log_of_rand_b'])
+            #print('The number of moves per turn who did not check if they would be happy:', reports['log_of_rand'])
             print('The number of agents who failed to find a new home:', reports['log_of_stay'])
             print('check:',reports['log_of_rand']) #debug
 
@@ -308,4 +353,15 @@ print(world.agents[a].same_pref) #debug
 #for i in range(20):
 #   print(world.agents[i].same_pref) 
 #check success: pref is working
+
+#for i in range(10):
+#   print(world.agents[i].move())
+
+#for i in range(10):
+ #  print(world.red_agents[i].kind)
+
+#world.agents[0].kind == 'red'
+#world.agents[1].kind == 'red'
+
+
 
