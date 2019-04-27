@@ -7,12 +7,12 @@ from numpy import random, mean
 #fixed it! Yay!
 
 params = {'world_size':(20,20),
-          'num_agents':20, #380
+          'num_agents':380,
           #'same_pref' :0.4,
-          'same_pref_r': 0.7,
-          'same_pref_b': 0.2,
-          'proportion_r': 0.5,
-          'max_iter'  :20,
+          'same_pref_r': 0.5,
+          'same_pref_b': 0.3,
+          'proportion_r': 0.6,
+          'max_iter'  :20, #100
           'look_before_move': True, #toggle this T/F for Question 2
           'out_path':r'~\Desktop\Programing\HW_3\output.csv'} #not sure where it's going, but not there!
 
@@ -95,27 +95,39 @@ class World():
         self.params = params
         self.reports = {}
 
-        self.grid     = self.build_grid(  params['world_size'])
-        self.agents   = self._agent_helper()
-        #self.agents   = self.build_agents(params['num_agents'], params['same_pref'])
+        self.grid     = self.build_grid(params['world_size'])
+        #self.agents   = self.agent_assign_helper(params['num_agents'])
+        self.agents   = self.build_agents(params['num_agents'], params['same_pref_r'], params['same_pref_b'])
         
         self.init_world()
 
+    
+    #for i in range(params['num_agents']) : #works when num_agents <= 20 but out of range when > 380
+    #    if world.agents[i].kind == 'red':
+     #       their_pref = params['same_pref_r']
+     #   else:
+      #      their_pref = params['same_pref_b']
+     
 
-    def _agent_helper(self):
-        for i in range(20): #need to update, 20 is to debug
-            if world.agents[i].kind == 'red':
-                my_agent = self.build_agents(params['num_agents'], params['same_pref_r'])
-            else:
-                my_agent = self.build_agents(params['num_agents'], params['same_pref_b'])
-        return my_agent
+    #def agent_assign_helper(self, num_agents):
+        #reduces the option of two preference parameters into one imput
+
+        #length_to_itterate_over = params['num_agents'] #380
+        #list_to_itterate_over = list(range(length_to_itterate_over)) #a list [0-279]
+    #    for i in range(num_agents) : #works when num_agents <= 20 but out of range when > 380
+    #        if world.agents[i].kind == 'red':
+    #            same_pref = self.build_agents(params['num_agents'], params['same_pref_r'])
+     #       else:
+      #          my_agent = self.build_agents(params['num_agents'], params['same_pref_b'])
+     #   return my_agent
+
 
     def build_grid(self, world_size):
         #create the world that the agents can move around on
         locations = [(i,j) for i in range(world_size[0]) for j in range(world_size[1])]
         return {l:None for l in locations}
 
-    def build_agents(self, num_agents, same_pref):
+    def build_agents(self, num_agents, same_pref_r, same_pref_b):
         #generate a list of Agents that can be iterated over
 
         def _kind_picker(i):
@@ -133,7 +145,8 @@ class World():
         agents = [Agent(self, _kind_picker(i), _pref_picker(i)) for i in range(num_agents)]
         random.shuffle(agents)
         return agents
-        print('I built an agent') #why won't this work!!!
+        #print('I built an agent') #why won't this work? Error: "unrechable code"
+    
 
     def init_world(self):
         #a method for all the steps necessary to create the starting point of the model
@@ -281,4 +294,13 @@ world.run()
 a = 0 #debug
 print(world.agents[a].kind) #debug
 print(world.agents[a].same_pref) #debug
+
+#tests at num_agents=20:
+#for i in range(20):
+#   print(world.agents[i].kind)
+#check success: proportion is working
+
+#for i in range(20):
+#   print(world.agents[i].same_pref) 
+#check success: pref is working
 
