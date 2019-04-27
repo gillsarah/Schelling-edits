@@ -234,7 +234,7 @@ class World():
             #    print("we all just move, that's what we do")
             #else:
             #if log_of_moved[-1] == log_of_stay[-1] == 0:
-            if log_of_happy[-1] == 380:
+            if log_of_happy[-1] == params['num_agents']:
                 print('Everyone is happy!  Stopping after iteration {}.'.format(iteration))
                 break
             elif log_of_moved[-1] == 0 and log_of_stay[-1] > 0:
