@@ -1,5 +1,6 @@
 from numpy import random, mean
 
+
 #note: Project completed with use of lecture notes and notes from TA discussion section
 
 #well I broke it and I don't know how! It thinks they're happy, but I didn't
@@ -10,12 +11,11 @@ from numpy import random, mean
 
 params = {'world_size':(20,20),
           'num_agents':380,
-          #'same_pref' :0.4,
-          'same_pref_r': 0.5,
-          'same_pref_b': 0.3,
-          'proportion_r': 0.6,
-          'max_iter'  :20, #100
-          'look_before_move': False, #toggle this T/F for Question 2
+          'same_pref_r': 0.4,
+          'same_pref_b': 0.4,
+          'proportion_r': 0.5,
+          'max_iter'  :100,
+          'look_before_move': True, #toggle this T/F for Question 2
           'print_to_screen': True,  #toggle this T/F for Question 1
           'to_file': False,          #toggle this T/F for Question 1
           'out_path':r'c:\\Users\\Sarah\\Desktop\\Programing\\HW_3\\output.csv'} #not sure where it's going, but not there!
@@ -66,11 +66,16 @@ class Agent():
                     self.location = patch                 #assign new patch to myself
                     self.world.grid[patch] = self         #update the grid
                     i_moved = True
-                    # break
-                    return 1
+                    if self.kind == 'red':
+                        return 1
+                    else:
+                        return 7
     #             if not i_moved:
             if i_moved is False:
-                return 2
+                if self.kind == 'red':
+                    return 2
+                else:
+                    return 8                
         elif happy: #needed to dubug! previously just else:
             if self.kind == 'red':
                 return 0 #'red happy'
@@ -235,13 +240,17 @@ class World():
     def run(self): #altered this!!!!!!!!!!!!!
         #handle the iterations of the model
         log_of_happy = []
-        log_of_moved = []
-        log_of_stay  = []
         log_of_rand  = []
         log_of_rand_r = []
         log_of_rand_b = []
         log_of_happy_r = []
         log_of_happy_b = []
+        log_of_moved_r = []
+        log_of_moved_b = []
+        log_of_moved = []
+        log_of_stay  = []
+        log_of_stay_r = []
+        log_of_stay_b = []
 
         '''
         red_agents = []
@@ -257,8 +266,11 @@ class World():
         self.report_integration()
         log_of_happy.append(sum([a.am_i_happy() for a in self.agents])) #starting happiness
         #log_of_happy_r.append(sum([a.am_i_happy() for a in self.red_agents]))
-        log_of_moved.append(0) #no one moved at startup
-        log_of_stay.append(0) #no one stayed at startup
+        log_of_moved_r.append(0) #no one moved at startup
+        log_of_moved_b.append(0) #no one moved at startup
+
+        log_of_stay_r.append(0) #no one stayed at startup
+        log_of_stay_b.append(0) #no one stayed at startup
 
         for iteration in range(self.params['max_iter']):
 
@@ -266,24 +278,34 @@ class World():
             move_results = [agent.move(params) for agent in self.agents]
             self.report_integration()
 
-            num_happy_at_start =sum([r==0 for r in move_results]) + sum([r==6 for r in move_results])
+            num_happy_at_start   =sum([r==0 for r in move_results]) + sum([r==6 for r in move_results])
             num_happy_at_start_r = sum([r==0 for r in move_results])
             num_happy_at_start_b = sum([r==6 for r in move_results])
-            num_moved          = sum([r==1 for r in move_results])
-            num_stayed_unhappy = sum([r==2 for r in move_results])
-            num_moved_random   = sum([r==3 for r in move_results]) #addes this!!!!!!!!!!
-            num_moved_random_r = sum([r==4 for r in move_results]) #not working
-            num_moved_random_b = sum([r==5 for r in move_results]) #not working
+            num_moved            = sum([r==1 for r in move_results]) + sum([r==7 for r in move_results])
+            num_moved_r          = sum([r==1 for r in move_results])
+            num_moved_b          = sum([r==7 for r in move_results])
+            num_stayed_unhappy   = sum([r==2 for r in move_results]) + sum([r==8 for r in move_results])
+            num_stayed_unhappy_r = sum([r==2 for r in move_results])
+            num_stayed_unhappy_b = sum([r==8 for r in move_results])
+            #num_moved_random     = sum([r==3 for r in move_results]) #addes this!!!!!!!!!!
+            num_moved_random_r   = sum([r==4 for r in move_results]) 
+            num_moved_random_b   = sum([r==5 for r in move_results]) 
 
             log_of_happy.append(num_happy_at_start)
-            log_of_moved.append(num_moved)
-            log_of_stay .append(num_stayed_unhappy)
+            
+            
             #log_of_moved.append(num_moved_random) #this way does not work, appends a 0 when shouldn't
-            log_of_rand.append(num_moved_random) #debug
+            #log_of_rand.append(num_moved_random) #debug
             log_of_rand_r.append(num_moved_random_r)
             log_of_rand_b.append(num_moved_random_b)
             log_of_happy_r.append(num_happy_at_start_r)
-            log_of_happy_r.append(num_happy_at_start_b)
+            log_of_happy_b.append(num_happy_at_start_b)
+            log_of_moved.append(num_moved)
+            log_of_moved_r.append(num_moved_r)
+            log_of_moved_b.append(num_moved_b)
+            log_of_stay .append(num_stayed_unhappy)
+            log_of_stay_r.append(num_stayed_unhappy_r)
+            log_of_stay_b.append(num_stayed_unhappy_b)
 
             #if not params[look_before_move]:
             #    print("we all just move, that's what we do")
@@ -298,11 +320,15 @@ class World():
 
         self.reports['log_of_happy'] = log_of_happy
         self.reports['log_of_happy_r'] = log_of_happy_r
-        self.reports['log_of_moved'] = log_of_moved
-        self.reports['log_of_stay']  = log_of_stay
+        self.reports['log_of_happy_b'] = log_of_happy_b
         self.reports['log_of_rand']  = log_of_rand
         self.reports['log_of_rand_r'] = log_of_rand_r
         self.reports['log_of_rand_b'] = log_of_rand_b
+        self.reports['log_of_moved_r'] = log_of_moved_r
+        self.reports['log_of_moved_b'] = log_of_moved_b
+        self.reports['log_of_stay']  = log_of_stay
+        self.reports['log_of_stay_r']  = log_of_stay_r
+        self.reports['log_of_stay_b']  = log_of_stay_b
 
         self.report(params)
 
@@ -316,11 +342,13 @@ class World():
             print('The number of happy agents:', reports['log_of_happy'])
             print('The number of happy red agents:', reports['log_of_happy_r'])
             print('The number of happy blue agents:', reports['log_of_happy_b'])
-            print('The number of moves per turn who checked if they would be happy:', reports['log_of_moved'])
+            print('The number of red agent moves per turn who checked if they would be happy:', reports['log_of_moved_r'])
+            print('The number of blue agent moves per turn who checked if they would be happy:', reports['log_of_moved_b'])
             print('The number of red agent moves per turn who did not check if they would be happy:', reports['log_of_rand_r'])
             print('The number of blue agent moves per turn who did not check if they would be happy:', reports['log_of_rand_b'])
             #print('The number of moves per turn who did not check if they would be happy:', reports['log_of_rand'])
-            print('The number of agents who failed to find a new home:', reports['log_of_stay'])
+            print('The number of red agents who failed to find a new home:', reports['log_of_stay_r'])
+            print('The number of blue agents who failed to find a new home:', reports['log_of_stay_b'])
             print('check:',reports['log_of_rand']) #debug
 
         if params['to_file']:
