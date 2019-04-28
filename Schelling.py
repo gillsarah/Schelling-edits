@@ -6,7 +6,7 @@ from numpy import random, mean
 #well I broke it and I don't know how! It thinks they're happy, but I didn't
 #touch am_i_happy or build_agents
 #fixed it! Yay!
-#just have to update report so that does r and b sep :(
+
 #out path not working correctly 
 
 params = {'world_size':(20,20),
@@ -18,7 +18,7 @@ params = {'world_size':(20,20),
           'look_before_move': True, #toggle this T/F for Question 2
           'print_to_screen': True,  #toggle this T/F for Question 1
           'to_file': False,          #toggle this T/F for Question 1
-          'out_path':r'c:\\Users\\Sarah\\Desktop\\Programing\\HW_3\\output.csv'} #not sure where it's going, but not there!
+          'out_path':r'c:\\users\\sarah\\desktop\\output.csv'} #not sure where it's going, but not there!
               #from lecture: out_path = r'c:\\users\\jeff\\desktop\\abm_results.csv'
 
 class Agent():
@@ -70,7 +70,7 @@ class Agent():
                         return 1
                     else:
                         return 7
-    #             if not i_moved:
+                 #if not i_moved:
             if i_moved is False:
                 if self.kind == 'red':
                     return 2
@@ -110,6 +110,36 @@ class Agent():
             return False
         else:
             return True
+    
+    def start_happy_r_b(self):
+        if self.am_i_happy and self.kind == 'red':
+            return 'a'
+        elif self.am_i_happy and self.kind == 'blue':
+            return 'b'
+        else:
+            pass
+    '''
+    def start_happy_r(self):
+        initial_red_happy = 0
+        #initial_blue_happy = 0
+        for agent in world.agents:
+            if self.am_i_happy and self.kind == 'red':
+                initial_red_happy += 1
+            return initial_red_happy
+    def start_happy_b(self):
+        initial_blue_happy = 0
+        for agent in world.agents:
+            if self.am_i_happy and self.kind == 'blue':
+                initial_blue_happy += 1
+            return initial_blue_happy   
+    ''' 
+    '''
+        for agent in 
+        if am_i_happy() and self.kind == 'red':
+            return 'a'
+        elif am_i_happy():
+            return 'b'
+    '''
 
 class World():
     def __init__(self, params):
@@ -265,7 +295,15 @@ class World():
         '''
         self.report_integration()
         log_of_happy.append(sum([a.am_i_happy() for a in self.agents])) #starting happiness
+        
+        happy_results = [agent.start_happy_r_b() for agent in self.agents]
+        log_of_happy_r.append(sum([r == 'a' for r in happy_results])) #starting happiness
+        log_of_happy_b.append(sum([r == 'b' for r in happy_results])) #starting happiness
+        
         #log_of_happy_r.append(sum([a.am_i_happy() for a in self.red_agents]))
+        log_of_rand_r.append(0) #no one moved at startup
+        log_of_rand_b.append(0) #no one moved at startup        
+        
         log_of_moved_r.append(0) #no one moved at startup
         log_of_moved_b.append(0) #no one moved at startup
 
@@ -276,6 +314,7 @@ class World():
 
             random.shuffle(self.agents) #randomize agents before every iteration
             move_results = [agent.move(params) for agent in self.agents]
+            
             self.report_integration()
 
             num_happy_at_start   =sum([r==0 for r in move_results]) + sum([r==6 for r in move_results])
@@ -318,15 +357,16 @@ class World():
                 print('Some agents are unhappy, but they cannot find anywhere to move to.  Stopping after iteration {}.'.format(iteration))
                 break
 
-        self.reports['log_of_happy'] = log_of_happy
+        self.reports['log_of_happy']   = log_of_happy
         self.reports['log_of_happy_r'] = log_of_happy_r
         self.reports['log_of_happy_b'] = log_of_happy_b
-        self.reports['log_of_rand']  = log_of_rand
-        self.reports['log_of_rand_r'] = log_of_rand_r
-        self.reports['log_of_rand_b'] = log_of_rand_b
+        self.reports['log_of_rand']    = log_of_rand
+        self.reports['log_of_rand_r']  = log_of_rand_r
+        self.reports['log_of_rand_b']  = log_of_rand_b
+        self.reports['log_of_moved']   = log_of_moved
         self.reports['log_of_moved_r'] = log_of_moved_r
         self.reports['log_of_moved_b'] = log_of_moved_b
-        self.reports['log_of_stay']  = log_of_stay
+        self.reports['log_of_stay']    = log_of_stay
         self.reports['log_of_stay_r']  = log_of_stay_r
         self.reports['log_of_stay_b']  = log_of_stay_b
 
@@ -354,14 +394,20 @@ class World():
         if params['to_file']:
             out_path = self.params['out_path']
             with open(out_path, 'w') as f:
-                headers = 'turn,integration,num_happy,num_moved,num_stayed\n'
+                headers = 'turn,integration,num_happy,num_happy_r,num_happy_b,num_moved_without_look_r,num_moved_without_look_b,num_moved_looked_r,num_moved_looked_b,num_stayed_r,num_stayed_b\n'
                 f.write(headers)
                 for i in range(len(reports['log_of_happy'])):
                     line = ','.join([str(i),
                                      str(reports['integration'][i]),
                                      str(reports['log_of_happy'][i]),
-                                     str(reports['log_of_moved'][i]),
-                                     str(reports['log_of_stay'][i]),
+                                     str(reports['log_of_happy_r'][i]),
+                                     str(reports['log_of_happy_b'][i]),
+                                     str(reports['log_of_rand_r'][i]),
+                                     str(reports['log_of_rand_b'][i]),
+                                     str(reports['log_of_moved_r'][i]),
+                                     str(reports['log_of_moved_b'][i]),
+                                     str(reports['log_of_stay_r'][i]),
+                                     str(reports['log_of_stay_b'][i]),
                                      '\n'
                                      ])
                     f.write(line)
@@ -369,9 +415,10 @@ class World():
 
 world = World(params)
 world.run()
-a = 0 #debug
-print(world.agents[a].kind) #debug
-print(world.agents[a].same_pref) #debug
+
+#a = 0 #debug
+#print(world.agents[a].kind) #debug
+#print(world.agents[a].same_pref) #debug
 
 #tests at num_agents=20:
 #for i in range(20):
@@ -389,7 +436,9 @@ print(world.agents[a].same_pref) #debug
  #  print(world.red_agents[i].kind)
 
 #world.agents[0].kind == 'red'
-#world.agents[1].kind == 'red'
+#world.agents[0].kind == 'red'
+#world.agents[0].start_happy_r()
+#world.agents[0].start_happy_b()
 
 
 
